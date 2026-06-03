@@ -31,6 +31,7 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+    command: ["postgres", "-c", "wal_level=logical"]
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.4.2
