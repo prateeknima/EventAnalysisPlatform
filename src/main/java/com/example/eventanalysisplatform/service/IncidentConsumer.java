@@ -1,21 +1,26 @@
 package com.example.eventanalysisplatform.service;
 
+import com.example.eventanalysisplatform.exception.IncidentConflictException;
 import com.example.eventanalysisplatform.record.IncidentRequest;
+import com.example.eventanalysisplatform.repository.IncidentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class IncidentConsumer {
     private final RedisService redisService;
+    private final IncidentRepository incidentRepository;
     private static final Logger log =
             LoggerFactory.getLogger(IncidentConsumer.class);
+    private final KafkaTemplate<String, IncidentRequest> kafkaTemplate;
 
-    public IncidentConsumer(RedisService redisService) {
+    public IncidentConsumer(RedisService redisService, IncidentRepository incidentRepository, KafkaTemplate<String, IncidentRequest> kafkaTemplate) {
         this.redisService = redisService;
+        this.incidentRepository = incidentRepository;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @KafkaListener(
@@ -23,14 +28,23 @@ public class IncidentConsumer {
             groupId = "incident-group"
     )
     public void consume(IncidentRequest incidentRequest) {
-
-        redisService.save(
-                "incident:" + incidentRequest.incidentId(),
-                "processed"
-        );
-        log.info(
-                "Consumed incident {}",
-                incidentRequest.incidentId()
-        );
+        try {
+            incidentRepository.save(incidentRequest);
+            redisService.save(
+                    "incident:" + incidentRequest.incidentId(),
+                    "processed"
+            );
+            log.info(
+                    "Consumed incident {}",
+                    incidentRequest.incidentId()
+            );
+        } catch (IncidentConflictException exception) {
+            log.error(
+                    "Incident conflict while consuming event: {} - {}",
+                    incidentRequest.incidentId(),
+                    exception.getMessage()
+            );
+            kafkaTemplate.send("incidents-dlt", incidentRequest);
+        }
     }
 }
