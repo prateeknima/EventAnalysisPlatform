@@ -3,11 +3,15 @@ package com.example.eventanalysisplatform.controller;
 import com.example.eventanalysisplatform.exception.IncidentNotFoundException;
 import com.example.eventanalysisplatform.record.IncidentRequest;
 import com.example.eventanalysisplatform.repository.IncidentRepository;
+import com.example.eventanalysisplatform.search.IncidentSearchDocument;
+import com.example.eventanalysisplatform.service.IncidentSearchService;
 import com.example.eventanalysisplatform.service.IncidentService;
 import com.example.eventanalysisplatform.service.RedisService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/incidents")
@@ -16,15 +20,18 @@ public class IncidentController {
     private final IncidentService service;
     private final RedisService redisService;
     private final IncidentRepository incidentRepository;
+    private final IncidentSearchService incidentSearchService;
 
     public IncidentController(
             IncidentService service,
             RedisService redisService,
-            IncidentRepository incidentRepository
+            IncidentRepository incidentRepository,
+            IncidentSearchService incidentSearchService
     ) {
         this.service = service;
         this.redisService = redisService;
         this.incidentRepository =incidentRepository;
+        this.incidentSearchService = incidentSearchService;
     }
 
     @PostMapping
@@ -61,5 +68,12 @@ public class IncidentController {
         }
 
         return incidentRequest;
+    }
+
+    @GetMapping("/search")
+    public List<IncidentSearchDocument> search(
+            @RequestParam String q
+    ){
+        return incidentSearchService.searchByMessage(q);
     }
 }

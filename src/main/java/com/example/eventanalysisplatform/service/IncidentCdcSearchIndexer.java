@@ -1,5 +1,6 @@
 package com.example.eventanalysisplatform.service;
 
+import com.example.eventanalysisplatform.search.IncidentSearchDocument;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +17,11 @@ public class IncidentCdcSearchIndexer {
             LoggerFactory.getLogger(IncidentCdcSearchIndexer.class);
 
     private final ObjectMapper objectMapper;
+    private final IncidentSearchService incidentSearchService;
 
-    public IncidentCdcSearchIndexer(ObjectMapper objectMapper) {
+    public IncidentCdcSearchIndexer(ObjectMapper objectMapper, IncidentSearchService incidentSearchService) {
         this.objectMapper = objectMapper;
+        this.incidentSearchService = incidentSearchService;
     }
 
     @KafkaListener(
@@ -55,6 +58,18 @@ public class IncidentCdcSearchIndexer {
                     severity,
                     message
             );
+
+            IncidentSearchDocument document = new IncidentSearchDocument(
+                    incidentId,
+                    source,
+                    severity,
+                    message
+            );
+
+            incidentSearchService.index(document);
+
+            log.info("Indexed incident into Elasticsearch: {}", incidentId);
+
         } catch (JacksonException e) {
             log.error("Failed to parse CDC event: {}", record.value(), e);
         }
