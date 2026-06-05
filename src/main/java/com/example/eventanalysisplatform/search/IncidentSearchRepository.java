@@ -6,6 +6,4 @@ import org.springframework.data.elasticsearch.repository.cdi.ElasticsearchReposi
 
 import java.util.List;
 
-public interface IncidentSearchRepository extends ElasticsearchRepository<IncidentSearchDocument, String> {
-    List<IncidentSearchDocument> findByMessageContainingIgnoreCase(String message);
-}
+public interface IncidentSearchRepository extends ElasticsearchRepository<IncidentSearchDocument, String> {}

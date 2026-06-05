@@ -74,6 +74,6 @@ public class IncidentController {
     public List<IncidentSearchDocument> search(
             @RequestParam String q
     ){
-        return incidentSearchService.searchByMessage(q);
+        return incidentSearchService.search(q);
     }
 }
