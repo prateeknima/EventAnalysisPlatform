@@ -49,7 +49,7 @@ public class IncidentController {
     public ResponseEntity<String> getIncident(
             @PathVariable String id
     ){
-        String status = redisService.get("incident:" + id);
+        String status = redisService.getStatus(id);
 
         if (status == null){
             return ResponseEntity.notFound().build();

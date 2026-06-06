@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class IncidentDltConsumer {
     private static final Logger log =
-            LoggerFactory.getLogger(IncidentConsumer.class);
+            LoggerFactory.getLogger(IncidentDltConsumer.class);
 
     @KafkaListener(
             topics = "incidents-dlt",

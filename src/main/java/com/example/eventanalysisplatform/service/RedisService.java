@@ -1,5 +1,6 @@
 package com.example.eventanalysisplatform.service;
 
+import com.example.eventanalysisplatform.record.IncidentStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -21,4 +22,11 @@ public class RedisService {
         return redisTemplate.opsForValue().get(key);
     }
 
+    public void saveStatus(String incidentId, IncidentStatus status) {
+        save("incident:" + incidentId + ":status", status.name());
+    }
+
+    public String getStatus(String incidentId) {
+        return get("incident:" + incidentId + ":status");
+    }
 }
