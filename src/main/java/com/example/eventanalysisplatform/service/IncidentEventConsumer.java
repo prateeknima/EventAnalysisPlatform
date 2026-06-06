@@ -1,6 +1,7 @@
 package com.example.eventanalysisplatform.service;
 
 import com.example.eventanalysisplatform.exception.IncidentConflictException;
+import com.example.eventanalysisplatform.record.IncidentEvent;
 import com.example.eventanalysisplatform.record.IncidentRequest;
 import com.example.eventanalysisplatform.record.IncidentStatus;
 import com.example.eventanalysisplatform.repository.IncidentRepository;
@@ -16,9 +17,9 @@ public class IncidentEventConsumer {
     private final IncidentRepository incidentRepository;
     private static final Logger log =
             LoggerFactory.getLogger(IncidentEventConsumer.class);
-    private final KafkaTemplate<String, IncidentRequest> kafkaTemplate;
+    private final KafkaTemplate<String, IncidentEvent> kafkaTemplate;
 
-    public IncidentEventConsumer(RedisService redisService, IncidentRepository incidentRepository, KafkaTemplate<String, IncidentRequest> kafkaTemplate) {
+    public IncidentEventConsumer(RedisService redisService, IncidentRepository incidentRepository, KafkaTemplate<String, IncidentEvent> kafkaTemplate) {
         this.redisService = redisService;
         this.incidentRepository = incidentRepository;
         this.kafkaTemplate = kafkaTemplate;
@@ -28,36 +29,37 @@ public class IncidentEventConsumer {
             topics = "incidents",
             groupId = "incident-group"
     )
-    public void consume(IncidentRequest incidentRequest) {
+    public void consume(IncidentEvent incidentEvent) {
         try {
             redisService.saveStatus(
-                    incidentRequest.incidentId(),
+                    incidentEvent.incidentId(),
                     IncidentStatus.PROCESSING
             );
 
-            incidentRepository.save(incidentRequest);
+            incidentRepository.save(incidentEvent);
 
             redisService.saveStatus(
-                    incidentRequest.incidentId(),
+                    incidentEvent.incidentId(),
                     IncidentStatus.PROCESSED
             );
             log.info(
-                    "Consumed incident {}",
-                    incidentRequest.incidentId()
+                    "Consumed incident {} correlationId={}",
+                    incidentEvent.incidentId(),
+                    incidentEvent.correlationId()
             );
         } catch (IncidentConflictException exception) {
 
             redisService.saveStatus(
-                    incidentRequest.incidentId(),
+                    incidentEvent.incidentId(),
                     IncidentStatus.CONFLICT
             );
 
             log.error(
                     "Incident conflict while consuming event: {} - {}",
-                    incidentRequest.incidentId(),
+                    incidentEvent.incidentId(),
                     exception.getMessage()
             );
-            kafkaTemplate.send("incidents-dlt", incidentRequest);
+            kafkaTemplate.send("incidents-dlt", incidentEvent);
         }
     }
 }

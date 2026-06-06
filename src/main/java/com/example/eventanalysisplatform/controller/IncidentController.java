@@ -36,11 +36,13 @@ public class IncidentController {
 
     @PostMapping
     public ResponseEntity<Void> create(
+            @RequestHeader(value = "X-Correlation-Id", required = false)
+            String correlationId,
             @Valid @RequestBody IncidentRequest incidentRequest
     ) {
 
 
-        service.handle(incidentRequest);
+        service.handle(incidentRequest, correlationId);
 
         return ResponseEntity.accepted().build();
     }

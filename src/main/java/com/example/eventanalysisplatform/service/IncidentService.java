@@ -1,10 +1,13 @@
 package com.example.eventanalysisplatform.service;
 
+import com.example.eventanalysisplatform.record.IncidentEvent;
 import com.example.eventanalysisplatform.record.IncidentRequest;
 import com.example.eventanalysisplatform.record.IncidentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class IncidentService {
@@ -22,12 +25,26 @@ public class IncidentService {
         this.redisService = redisService;
     }
 
-    public void handle(IncidentRequest incidentRequest) {
-        log.info("Received incident: {}", incidentRequest.incidentId());
-        redisService.saveStatus(
+    public void handle(IncidentRequest incidentRequest, String incomingCorrelationId) {
+        String correlationId = incomingCorrelationId != null && !incomingCorrelationId.isBlank()
+                ? incomingCorrelationId
+                : UUID.randomUUID().toString();
+        IncidentEvent incidentEvent = new IncidentEvent(
                 incidentRequest.incidentId(),
+                incidentRequest.source(),
+                incidentRequest.severity(),
+                incidentRequest.message(),
+                correlationId
+        );
+        log.info(
+                "Received incident: {} correlationId={}",
+                incidentEvent.incidentId(),
+                incidentEvent.correlationId()
+        );
+        redisService.saveStatus(
+                incidentEvent.incidentId(),
                 IncidentStatus.RECEIVED
         );
-        producer.publish(incidentRequest);
+        producer.publish(incidentEvent);
     }
 }

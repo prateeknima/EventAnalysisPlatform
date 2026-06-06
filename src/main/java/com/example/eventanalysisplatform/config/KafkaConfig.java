@@ -1,6 +1,6 @@
 package com.example.eventanalysisplatform.config;
 
-import com.example.eventanalysisplatform.record.IncidentRequest;
+import com.example.eventanalysisplatform.record.IncidentEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -25,7 +25,7 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    public ProducerFactory<String, IncidentRequest> producerFactory() {
+    public ProducerFactory<String, IncidentEvent> producerFactory() {
 
         Map<String, Object> config = new HashMap<>();
 
@@ -48,13 +48,13 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, IncidentRequest> kafkaTemplate() {
+    public KafkaTemplate<String, IncidentEvent> kafkaTemplate() {
 
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public ConsumerFactory<String, IncidentRequest> consumerFactory() {
+    public ConsumerFactory<String, IncidentEvent> consumerFactory() {
 
         Map<String, Object> config = new HashMap<>();
 
@@ -81,15 +81,15 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(
                 config,
                 new StringDeserializer(),
-                new JacksonJsonDeserializer<>(IncidentRequest.class)
+                new JacksonJsonDeserializer<>(IncidentEvent.class)
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, IncidentRequest>
+    public ConcurrentKafkaListenerContainerFactory<String, IncidentEvent>
     kafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, IncidentRequest> factory =
+        ConcurrentKafkaListenerContainerFactory<String, IncidentEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(consumerFactory());

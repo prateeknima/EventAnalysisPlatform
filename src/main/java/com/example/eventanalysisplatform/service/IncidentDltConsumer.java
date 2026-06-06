@@ -1,5 +1,6 @@
 package com.example.eventanalysisplatform.service;
 
+import com.example.eventanalysisplatform.record.IncidentEvent;
 import com.example.eventanalysisplatform.record.IncidentRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +16,11 @@ public class IncidentDltConsumer {
             topics = "incidents-dlt",
             groupId = "incident-dlt-debug-group"
     )
-    public void consumeDlt(IncidentRequest incidentRequest) {
+    public void consumeDlt(IncidentEvent incidentEvent) {
         log.warn(
-                "Received incident from DLT: {}",
-                incidentRequest
+                "Received incident from DLT: incidentId={}, correlationId={}",
+                incidentEvent.incidentId(),
+                incidentEvent.correlationId()
         );
     }
 

@@ -1,6 +1,7 @@
 package com.example.eventanalysisplatform.repository;
 
 import com.example.eventanalysisplatform.exception.IncidentConflictException;
+import com.example.eventanalysisplatform.record.IncidentEvent;
 import com.example.eventanalysisplatform.record.IncidentRequest;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class IncidentRepository {
         this.dsl = dslContext;
     }
 
-    public void save(IncidentRequest request){
+    public void save(IncidentEvent request){
         int inserted = dsl.insertInto(table("incidents"))
                 .columns(
                         field("incident_id"),
