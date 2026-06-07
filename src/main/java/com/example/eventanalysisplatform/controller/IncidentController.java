@@ -8,6 +8,7 @@ import com.example.eventanalysisplatform.service.IncidentSearchService;
 import com.example.eventanalysisplatform.service.IncidentService;
 import com.example.eventanalysisplatform.service.RedisService;
 import jakarta.validation.Valid;
+import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

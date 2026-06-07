@@ -5,6 +5,7 @@ import com.example.eventanalysisplatform.record.IncidentRequest;
 import com.example.eventanalysisplatform.record.IncidentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

@@ -7,6 +7,7 @@ import com.example.eventanalysisplatform.record.IncidentStatus;
 import com.example.eventanalysisplatform.repository.IncidentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class IncidentEventConsumer {
             groupId = "incident-group"
     )
     public void consume(IncidentEvent incidentEvent) {
+        MDC.put("correlationId", incidentEvent.correlationId());
         try {
             redisService.saveStatus(
                     incidentEvent.incidentId(),
@@ -60,6 +62,9 @@ public class IncidentEventConsumer {
                     exception.getMessage()
             );
             kafkaTemplate.send("incidents-dlt", incidentEvent);
+        }
+        finally {
+            MDC.remove("correlationId");
         }
     }
 }

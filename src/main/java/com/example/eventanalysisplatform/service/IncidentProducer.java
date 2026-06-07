@@ -4,6 +4,7 @@ import com.example.eventanalysisplatform.record.IncidentEvent;
 import com.example.eventanalysisplatform.record.IncidentRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class IncidentProducer {
     }
 
     public void publish(IncidentEvent incidentEvent) {
-
+        MDC.put("correlationId", incidentEvent.correlationId());
         try {
 
             log.info(
@@ -37,6 +38,9 @@ public class IncidentProducer {
         } catch (Exception e) {
 
             throw new RuntimeException(e);
+        }
+        finally {
+            MDC.remove("correlationId");
         }
     }
 }
