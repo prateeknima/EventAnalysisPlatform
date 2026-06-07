@@ -94,5 +94,24 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
 
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    depends_on:
+      - postgres
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/incidents?sslmode=disable"
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis-exporter
+    depends_on:
+      - redis
+    ports:
+      - "9121:9121"
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
 volumes:
   elasticsearch-data:
