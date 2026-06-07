@@ -123,5 +123,16 @@ services:
       - "9308:9308"
     command:
       - "--kafka.server=kafka:29092"
+
+  elasticsearch-exporter:
+    image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
+    container_name: elasticsearch-exporter
+    depends_on:
+      - elasticsearch
+    ports:
+      - "9114:9114"
+    command:
+      - "--es.uri=http://elasticsearch:9200"
+
 volumes:
   elasticsearch-data:
