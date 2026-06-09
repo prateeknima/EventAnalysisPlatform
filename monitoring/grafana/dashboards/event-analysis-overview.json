@@ -1,0 +1,106 @@
+{
+  "uid": "event-analysis-overview",
+  "title": "Event Analysis Overview",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Spring App Up",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "up{job=\"event-analysis-platform\"}"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "id": 2,
+      "title": "JVM Heap Used",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"})"
+        }
+      ],
+      "gridPos": { "x": 6, "y": 0, "w": 12, "h": 4 }
+    },
+    {
+      "id": 3,
+      "title": "GC Pause Count",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(jvm_gc_pause_seconds_count[5m])"
+        }
+      ],
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "id": 4,
+      "title": "Postgres Up",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "pg_up"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 4, "w": 6, "h": 4 }
+    },
+    {
+      "id": 5,
+      "title": "Redis Memory Used",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "redis_memory_used_bytes"
+        }
+      ],
+      "gridPos": { "x": 6, "y": 4, "w": 12, "h": 4 }
+    },
+    {
+      "id": 6,
+      "title": "Kafka Consumer Lag",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "kafka_consumergroup_lag"
+        }
+      ],
+      "gridPos": { "x": 18, "y": 4, "w": 6, "h": 4 }
+    },
+    {
+      "id": 7,
+      "title": "Elasticsearch Documents",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "elasticsearch_indices_docs"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 4 }
+    },
+    {
+      "id": 8,
+      "title": "HTTP Requests",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count[5m])"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 4 }
+    }
+  ]
+}
