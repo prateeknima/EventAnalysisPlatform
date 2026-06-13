@@ -42,7 +42,14 @@ public class IncidentRepository {
 
         IncidentRequest existing = findById(request.incidentId());
 
-        if (!existing.equals(request)){
+        boolean sameIncidentData =
+                existing != null
+                        && existing.incidentId().equals(request.incidentId())
+                        && existing.source().equals(request.source())
+                        && existing.severity().equals(request.severity())
+                        && existing.message().equals(request.message());
+
+        if (!sameIncidentData) {
             throw new IncidentConflictException(request.incidentId());
         }
     }
