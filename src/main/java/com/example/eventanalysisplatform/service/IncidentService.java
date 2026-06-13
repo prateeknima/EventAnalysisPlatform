@@ -17,16 +17,20 @@ public class IncidentService {
     private final RedisService redisService;
     private static final Logger log =
             LoggerFactory.getLogger(IncidentService.class);
+    private final RateLimiterService rateLimiterService;
 
     public IncidentService(
             IncidentProducer producer,
-            RedisService redisService
+            RedisService redisService,
+            RateLimiterService rateLimiterService
     ) {
         this.producer = producer;
         this.redisService = redisService;
+        this.rateLimiterService = rateLimiterService;
     }
 
     public void handle(IncidentRequest incidentRequest, String incomingCorrelationId) {
+        rateLimiterService.checkLimit(incidentRequest.source());
         String correlationId = incomingCorrelationId != null && !incomingCorrelationId.isBlank()
                 ? incomingCorrelationId
                 : UUID.randomUUID().toString();

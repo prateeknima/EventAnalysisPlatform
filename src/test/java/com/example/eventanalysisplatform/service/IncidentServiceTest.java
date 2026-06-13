@@ -16,15 +16,18 @@ class IncidentServiceTest {
     private IncidentProducer producer;
     private RedisService redisService;
     private IncidentService incidentService;
+    private RateLimiterService rateLimiterService;
 
     @BeforeEach
     void setUp() {
         producer = mock(IncidentProducer.class);
         redisService = mock(RedisService.class);
+        rateLimiterService = mock(RateLimiterService.class);
 
         incidentService = new IncidentService(
                 producer,
-                redisService
+                redisService,
+                rateLimiterService
         );
     }
 
