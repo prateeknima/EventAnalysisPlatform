@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/actuator/prometheus").hasAuthority("metrics.read")
+                        .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers(HttpMethod.POST, "/incidents").hasAuthority("incidents.write")
                         .requestMatchers(HttpMethod.GET, "/incidents/**").hasAuthority("incidents.read")
                         .anyRequest().authenticated()
