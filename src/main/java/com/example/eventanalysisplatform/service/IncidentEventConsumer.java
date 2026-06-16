@@ -19,11 +19,14 @@ public class IncidentEventConsumer {
     private static final Logger log =
             LoggerFactory.getLogger(IncidentEventConsumer.class);
     private final KafkaTemplate<String, IncidentEvent> kafkaTemplate;
+    private final AsyncIncidentEnrichmentService asyncIncidentEnrichmentService;
 
-    public IncidentEventConsumer(RedisService redisService, IncidentRepository incidentRepository, KafkaTemplate<String, IncidentEvent> kafkaTemplate) {
+    public IncidentEventConsumer(RedisService redisService, IncidentRepository incidentRepository,
+                                 KafkaTemplate<String, IncidentEvent> kafkaTemplate, AsyncIncidentEnrichmentService asyncIncidentEnrichmentService) {
         this.redisService = redisService;
         this.incidentRepository = incidentRepository;
         this.kafkaTemplate = kafkaTemplate;
+        this.asyncIncidentEnrichmentService = asyncIncidentEnrichmentService;
     }
 
     @KafkaListener(
@@ -44,6 +47,19 @@ public class IncidentEventConsumer {
                     incidentEvent.incidentId(),
                     IncidentStatus.PROCESSED
             );
+
+            asyncIncidentEnrichmentService.enrichAsync(incidentEvent)
+                    .whenComplete((result, exception) -> {
+                        if (exception != null) {
+                            log.warn(
+                                    "Async enrichment failed incidentId={} correlationId={}",
+                                    incidentEvent.incidentId(),
+                                    incidentEvent.correlationId(),
+                                    exception
+                            );
+                        }
+                    });
+
             log.info(
                     "Consumed incident {} correlationId={}",
                     incidentEvent.incidentId(),

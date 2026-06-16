@@ -8,13 +8,23 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import static org.mockito.Mockito.*;
+import java.util.concurrent.CompletableFuture;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 class IncidentEventConsumerTest {
 
     private RedisService redisService;
     private IncidentRepository incidentRepository;
     private KafkaTemplate<String, IncidentEvent> kafkaTemplate;
+    private AsyncIncidentEnrichmentService asyncIncidentEnrichmentService;
     private IncidentEventConsumer consumer;
 
     @BeforeEach
@@ -22,11 +32,13 @@ class IncidentEventConsumerTest {
         redisService = mock(RedisService.class);
         incidentRepository = mock(IncidentRepository.class);
         kafkaTemplate = mock(KafkaTemplate.class);
+        asyncIncidentEnrichmentService = mock(AsyncIncidentEnrichmentService.class);
 
         consumer = new IncidentEventConsumer(
                 redisService,
                 incidentRepository,
-                kafkaTemplate
+                kafkaTemplate,
+                asyncIncidentEnrichmentService
         );
     }
 
@@ -39,6 +51,9 @@ class IncidentEventConsumerTest {
                 "timeout",
                 "corr-123"
         );
+
+        when(asyncIncidentEnrichmentService.enrichAsync(any(IncidentEvent.class)))
+                .thenReturn(CompletableFuture.completedFuture(null));
 
         consumer.consume(event);
 
@@ -53,6 +68,8 @@ class IncidentEventConsumerTest {
                 "INC-CONSUMER-1",
                 IncidentStatus.PROCESSED
         );
+
+        verify(asyncIncidentEnrichmentService).enrichAsync(event);
 
         verify(kafkaTemplate, never()).send(eq("incidents-dlt"), any(IncidentEvent.class));
     }
@@ -89,5 +106,7 @@ class IncidentEventConsumerTest {
                 "INC-CONSUMER-CONFLICT-1",
                 IncidentStatus.PROCESSED
         );
+
+        verifyNoInteractions(asyncIncidentEnrichmentService);
     }
 }
