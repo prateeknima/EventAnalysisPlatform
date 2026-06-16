@@ -148,5 +148,16 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
 
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./monitoring/alertmanager/slack-webhook-url:/etc/alertmanager/slack-webhook-url
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+
 volumes:
   elasticsearch-data:
