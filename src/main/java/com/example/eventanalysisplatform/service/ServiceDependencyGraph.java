@@ -10,6 +10,10 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+/**
+ * Models service dependencies as an adjacency-list graph and uses breadth-first
+ * traversal to find downstream services that may be affected by an incident source.
+ */
 @Service
 public class ServiceDependencyGraph {
 

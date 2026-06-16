@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Builds operational context for an incident by combining dependency impact,
+ * priority scoring, risk classification, and a recommended operator action.
+ */
 @Service
 public class IncidentEnrichmentService {
 

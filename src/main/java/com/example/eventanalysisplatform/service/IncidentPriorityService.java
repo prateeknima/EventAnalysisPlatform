@@ -5,6 +5,10 @@ import org.springframework.stereotype.Service;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+/**
+ * Calculates a priority score inside the incident's severity band and maps the
+ * score to a risk level using ordered thresholds.
+ */
 @Service
 public class IncidentPriorityService {
 
