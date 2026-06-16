@@ -61,6 +61,66 @@ Interpretation:
 
 The API accepted low steady write traffic successfully. At this load level, the write path stayed well below the initial latency target.
 
+### Ramping Write Path Test
+
+Script: `load-tests/incidents-ramp.js`
+
+Command: `ACCESS_TOKEN='...' k6 run load-tests/incidents-ramp.js`
+
+Purpose:
+
+Validate that authenticated incident creation remains stable while traffic gradually increases.
+
+Path tested: `POST /incidents`
+
+Expected behavior: `202 Accepted`
+
+Result:
+
+- Maximum virtual users: 50
+- Duration: 5 minutes
+- Total requests: 5288
+- Failure rate: 0%
+- Check success rate: 100%
+- p95 latency: 17.24ms
+- Max latency: 126.79ms
+- Threshold: p95 latency < 750ms
+- Outcome: PASS
+
+Interpretation:
+
+The service handled a local ramp from 5 to 50 virtual users without failed requests. API latency remained well below the ramp-test threshold. Earlier failures were caused by Keycloak access token expiry during the test, so the local token lifespan was increased for load testing.
+
+### Soak Write Path Test
+
+Script: `load-tests/incidents-soak.js`
+
+Command: `ACCESS_TOKEN='...' k6 run load-tests/incidents-soak.js`
+
+Purpose:
+
+Validate that authenticated incident creation remains stable during sustained local traffic.
+
+Path tested: `POST /incidents`
+
+Expected behavior: `202 Accepted`
+
+Result:
+
+- Virtual users: 10
+- Duration: 10 minutes
+- Total requests: 5890
+- Failure rate: 0%
+- Check success rate: 100%
+- p95 latency: 25.92ms
+- Max latency: 104.82ms
+- Threshold: p95 latency < 750ms
+- Outcome: PASS
+
+Interpretation:
+
+The service handled sustained local write traffic for 10 minutes without failed requests. API latency remained stable and well below the soak-test threshold.
+
 ### Rate Limit Test
 
 Script: `load-tests/incidents-rate-limit.js`
@@ -166,10 +226,9 @@ The tests used low traffic levels and short durations. They do not yet validate:
 
 ## Next Steps
 
-- Add ramping load test from 5 to 50 virtual users
 - Add stress test to identify failure points
-- Add soak test to observe memory and latency over a longer period
 - Capture Grafana screenshots during load tests
 - Define formal SLOs and error-budget policy
 - Add Prometheus alert rules for latency, error rate, Kafka lag, JVM memory, and dependency health
 - Add runbooks for common failure scenarios
+- Add longer soak test in a production-like Kubernetes environment
