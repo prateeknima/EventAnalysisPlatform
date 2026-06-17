@@ -1,6 +1,8 @@
 package com.example.eventanalysisplatform.config;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -12,13 +14,21 @@ import java.util.Map;
 @Configuration
 public class CdcKafkaConsumerConfig {
 
+    private final String bootstrapServers;
+
+    public CdcKafkaConsumerConfig(
+            @Value("${spring.kafka.bootstrap-servers}") String bootstrapServers
+    ) {
+        this.bootstrapServers = bootstrapServers;
+    }
+
     @Bean
     public ConsumerFactory<String, String> cdcConsumerFactory(){
         return new DefaultKafkaConsumerFactory<>(Map.of(
-                "bootstrap.servers", "localhost:9092",
-                "key.deserializer", StringDeserializer.class,
-                "value.deserializer", StringDeserializer.class,
-                "auto.offset.reset", "earliest"
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
         ));
     }
 
