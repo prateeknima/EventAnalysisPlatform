@@ -34,3 +34,6 @@ jobs:
         with:
           name: jacoco-report
           path: target/site/jacoco
+
+      - name: Build Docker image
+        run: docker build -t event-analysis-platform:ci .
