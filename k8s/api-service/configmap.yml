@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-service-config
+data:
+  SPRING_APPLICATION_NAME: EventAnalysisPlatform
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  SPRING_DATA_REDIS_HOST: redis
+  SPRING_DATA_REDIS_PORT: "6379"
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/incidents
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/event-analysis
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,prometheus
+  SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+  SPRING_DATA_ELASTICSEARCH_CLIENT_REACTIVE_ENDPOINTS: elasticsearch:9200
