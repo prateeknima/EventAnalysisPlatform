@@ -3,11 +3,14 @@ package com.example.eventanalysisplatform.repository;
 import com.example.eventanalysisplatform.exception.IncidentConflictException;
 import com.example.eventanalysisplatform.record.IncidentEvent;
 import com.example.eventanalysisplatform.record.IncidentRequest;
+import com.zaxxer.hikari.HikariDataSource;
+import org.flywaydb.core.Flyway;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -15,7 +18,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
 @Testcontainers
 class IncidentRepositoryIntegrationTest {
 
@@ -26,15 +28,35 @@ class IncidentRepositoryIntegrationTest {
                     .withUsername("postgres")
                     .withPassword("postgres");
 
-    @DynamicPropertySource
-    static void postgresProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
+    private HikariDataSource dataSource;
+    private IncidentRepository incidentRepository;
+
+    @BeforeEach
+    void setUp() {
+        dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(postgres.getJdbcUrl());
+        dataSource.setUsername(postgres.getUsername());
+        dataSource.setPassword(postgres.getPassword());
+
+        Flyway.configure()
+                .dataSource(dataSource)
+                .cleanDisabled(false)
+                .load()
+                .clean();
+
+        Flyway.configure()
+                .dataSource(dataSource)
+                .load()
+                .migrate();
+
+        DSLContext dsl = DSL.using(dataSource, SQLDialect.POSTGRES);
+        incidentRepository = new IncidentRepository(dsl);
     }
 
-    @Autowired
-    private IncidentRepository incidentRepository;
+    @AfterEach
+    void tearDown() {
+        dataSource.close();
+    }
 
     @Test
     void saveInsertsIncident() {
