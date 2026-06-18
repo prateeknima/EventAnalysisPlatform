@@ -12,3 +12,9 @@ data:
   MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,prometheus
   SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
   SPRING_DATA_ELASTICSEARCH_CLIENT_REACTIVE_ENDPOINTS: elasticsearch:9200
+  JAVA_TOOL_OPTIONS: >-
+    -XX:+UseG1GC
+    -XX:MaxRAMPercentage=75
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:HeapDumpPath=/tmp
+    -Xlog:gc*:stdout:time,level,tags
