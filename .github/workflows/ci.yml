@@ -7,9 +7,13 @@ on:
       - master
   pull_request:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   test:
-    name: Build and test
+    name: Build, test, and publish image
     runs-on: ubuntu-latest
 
     steps:
@@ -24,10 +28,10 @@ jobs:
           cache: maven
 
       - name: Run tests
-        run: mvn test
+        run: ./mvnw test
 
       - name: Generate JaCoCo report
-        run: mvn jacoco:report
+        run: ./mvnw jacoco:report
 
       - name: Upload JaCoCo report
         uses: actions/upload-artifact@v4
@@ -35,5 +39,18 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco
 
+      - name: Set Docker image name
+        run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
       - name: Build Docker image
-        run: docker build -t event-analysis-platform:ci .
+        run: docker build -t "$IMAGE_NAME:${{ github.sha }}" -t "$IMAGE_NAME:latest" .
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          docker push "$IMAGE_NAME:${{ github.sha }}"
+          docker push "$IMAGE_NAME:latest"
