@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
         - name: api-service
-          image: event-analysis-platform:k8s-fix-kafka
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/prateeknima/eventanalysisplatform:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           envFrom:

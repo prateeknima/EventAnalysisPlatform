@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-service-config
+data:
+  SPRING_APPLICATION_NAME: EventAnalysisPlatform
+  SPRING_PROFILES_ACTIVE: k8s-local
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: host.minikube.internal:9092
+  SPRING_KAFKA_LISTENER_AUTO_STARTUP: "false"
+  SPRING_DATA_REDIS_HOST: host.minikube.internal
+  SPRING_DATA_REDIS_PORT: "6379"
+  SPRING_DATASOURCE_URL: jdbc:postgresql://host.minikube.internal:5432/incidents
+  SPRING_FLYWAY_ENABLED: "false"
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://host.minikube.internal:8081/realms/event-analysis
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,prometheus
+  MANAGEMENT_HEALTH_DB_ENABLED: "false"
+  MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
+  MANAGEMENT_HEALTH_ELASTICSEARCH_ENABLED: "false"
+  SPRING_ELASTICSEARCH_URIS: http://host.minikube.internal:9200
+  SPRING_DATA_ELASTICSEARCH_CLIENT_REACTIVE_ENDPOINTS: host.minikube.internal:9200
+  JAVA_TOOL_OPTIONS: >-
+    -XX:+UseG1GC
+    -XX:MaxRAMPercentage=75
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:HeapDumpPath=/tmp
+    -Xlog:gc*:stdout:time,level,tags
