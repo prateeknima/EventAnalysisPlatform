@@ -4,6 +4,7 @@ import com.example.eventanalysisplatform.search.IncidentSearchDocument;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
@@ -11,6 +12,11 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Service
+@ConditionalOnProperty(
+        name = "app.kafka.listeners.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class IncidentCdcSearchIndexer {
 
     private static final Logger log =

@@ -5,10 +5,16 @@ import com.example.eventanalysisplatform.record.IncidentRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
+@ConditionalOnProperty(
+        name = "app.kafka.listeners.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class IncidentDltConsumer {
     private static final Logger log =
             LoggerFactory.getLogger(IncidentDltConsumer.class);
