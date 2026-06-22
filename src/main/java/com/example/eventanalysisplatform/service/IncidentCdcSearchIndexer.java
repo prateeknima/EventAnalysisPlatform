@@ -1,5 +1,7 @@
 package com.example.eventanalysisplatform.service;
 
+import com.example.eventanalysisplatform.record.IncidentEnrichmentResult;
+import com.example.eventanalysisplatform.record.IncidentEvent;
 import com.example.eventanalysisplatform.search.IncidentSearchDocument;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -24,10 +26,14 @@ public class IncidentCdcSearchIndexer {
 
     private final ObjectMapper objectMapper;
     private final IncidentSearchService incidentSearchService;
+    private final IncidentEnrichmentService incidentEnrichmentService;
 
-    public IncidentCdcSearchIndexer(ObjectMapper objectMapper, IncidentSearchService incidentSearchService) {
+    public IncidentCdcSearchIndexer(ObjectMapper objectMapper,
+                                    IncidentSearchService incidentSearchService,
+                                    IncidentEnrichmentService incidentEnrichmentService) {
         this.objectMapper = objectMapper;
         this.incidentSearchService = incidentSearchService;
+        this.incidentEnrichmentService = incidentEnrichmentService;
     }
 
     @KafkaListener(
@@ -65,11 +71,26 @@ public class IncidentCdcSearchIndexer {
                     message
             );
 
+            IncidentEvent event = new IncidentEvent(
+                    incidentId,
+                    source,
+                    severity,
+                    message,
+                    "cdc-" + incidentId
+            );
+
+            IncidentEnrichmentResult enrichment =
+                    incidentEnrichmentService.enrich(event);
+
             IncidentSearchDocument document = new IncidentSearchDocument(
                     incidentId,
                     source,
                     severity,
-                    message
+                    message,
+                    enrichment.priorityScore(),
+                    enrichment.riskLevel(),
+                    enrichment.affectedServices().size(),
+                    enrichment.affectedServices()
             );
 
             incidentSearchService.index(document);

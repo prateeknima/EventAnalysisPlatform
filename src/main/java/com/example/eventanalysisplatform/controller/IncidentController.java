@@ -3,6 +3,7 @@ package com.example.eventanalysisplatform.controller;
 import com.example.eventanalysisplatform.exception.IncidentNotFoundException;
 import com.example.eventanalysisplatform.record.IncidentRequest;
 import com.example.eventanalysisplatform.repository.IncidentRepository;
+import com.example.eventanalysisplatform.search.IncidentRankedSearchResult;
 import com.example.eventanalysisplatform.search.IncidentSearchDocument;
 import com.example.eventanalysisplatform.service.IncidentSearchService;
 import com.example.eventanalysisplatform.service.IncidentService;
@@ -78,5 +79,13 @@ public class IncidentController {
             @RequestParam String q
     ){
         return incidentSearchService.search(q);
+    }
+
+    @GetMapping("/search/ranked")
+    public List<IncidentRankedSearchResult> rankedSearch(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "100") int limit
+    ){
+        return incidentSearchService.searchRanked(q, limit);
     }
 }

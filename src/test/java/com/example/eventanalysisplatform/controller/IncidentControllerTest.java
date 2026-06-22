@@ -3,6 +3,7 @@ package com.example.eventanalysisplatform.controller;
 import com.example.eventanalysisplatform.exception.ApiExceptionHandler;
 import com.example.eventanalysisplatform.record.IncidentRequest;
 import com.example.eventanalysisplatform.repository.IncidentRepository;
+import com.example.eventanalysisplatform.search.IncidentRankedSearchResult;
 import com.example.eventanalysisplatform.search.IncidentSearchDocument;
 import com.example.eventanalysisplatform.service.IncidentSearchService;
 import com.example.eventanalysisplatform.service.IncidentService;
@@ -159,5 +160,32 @@ class IncidentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].incidentId").value("INC-SEARCH-1"))
                 .andExpect(jsonPath("$[0].message").value("payment timeout"));
+    }
+
+    @Test
+    void rankedSearchReturnsRankedIncidents() throws Exception {
+        Mockito.when(incidentSearchService.searchRanked("timeout", 10))
+                .thenReturn(List.of(
+                        new IncidentRankedSearchResult(
+                                "INC-RANKED-1",
+                                "payment",
+                                "HIGH",
+                                "payment timeout",
+                                81,
+                                "HIGH",
+                                11,
+                                3.5f,
+                                List.of("payment", "checkout")
+                        )
+                ));
+
+        mockMvc.perform(get("/incidents/search/ranked")
+                        .param("q", "timeout")
+                        .param("limit", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].incidentId").value("INC-RANKED-1"))
+                .andExpect(jsonPath("$[0].priorityScore").value(81))
+                .andExpect(jsonPath("$[0].riskLevel").value("HIGH"))
+                .andExpect(jsonPath("$[0].affectedServiceCount").value(11));
     }
 }
